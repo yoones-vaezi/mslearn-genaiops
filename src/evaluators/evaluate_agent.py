@@ -332,10 +332,11 @@ def retrieve_and_display_results(eval_object, run):
     }
 
     for item in scored_items:
-        if hasattr(item, "evaluator_outputs"):
-            for output in item.evaluator_outputs:
-                if output.name in scores and hasattr(output, "score"):
-                    scores[output.name].append(output.score)
+        # The API returns evaluator results in item.results (not item.evaluator_outputs)
+        results = getattr(item, "results", None) or []
+        for result in results:
+            if result.name in scores and hasattr(result, "score") and result.score is not None:
+                scores[result.name].append(result.score)
 
     # --- Build summary text (printed to console and written to file) ---
     # Everything written to `lines` ends up both on screen and in the file,
